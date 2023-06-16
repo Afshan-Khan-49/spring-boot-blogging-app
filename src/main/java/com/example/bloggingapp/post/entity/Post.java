@@ -46,7 +46,7 @@ public class Post {
     private Set<FavoritePost> favoriteUsers = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PostTag> includeTags = new HashSet<>();
+    private Set<PostTag> postTags = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -63,7 +63,7 @@ public class Post {
         this.title = title;
         this.content = content;
         this.favoriteUsers = new HashSet<>();
-        this.includeTags = new HashSet<>();
+        this.postTags = new HashSet<>();
         this.createdAt = LocalDateTime.now();
     }
 
@@ -83,14 +83,14 @@ public class Post {
     public void addTag(@NotNull Tag newTag) {
         PostTag postTag = new PostTag(this, newTag);
 
-        if(this.includeTags.stream().anyMatch(postTag::equals))
+        if (this.postTags.stream().anyMatch(postTag::equals))
             return;
 
-        this.includeTags.add(postTag);
+        this.postTags.add(postTag);
     }
 
     public void addTags(Set<Tag> tags) {
-        if(!tags.isEmpty())
+        if (!tags.isEmpty())
             tags.forEach(this::addTag);
     }
 
@@ -100,6 +100,10 @@ public class Post {
 
     public void addFavoriteUser(FavoritePost favoritePost) {
         this.getFavoriteUsers().add(favoritePost);
+    }
+
+    public void removeFavoriteUser(FavoritePost favoritePost) {
+        this.getFavoriteUsers().remove(favoritePost);
     }
 }
 

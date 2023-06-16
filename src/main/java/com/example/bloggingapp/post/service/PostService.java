@@ -4,8 +4,11 @@ import com.example.bloggingapp.post.dto.CommentResponse;
 import com.example.bloggingapp.post.dto.CreatePostRequestDto;
 import com.example.bloggingapp.post.dto.PostResponseDto;
 import com.example.bloggingapp.post.dto.UpdatePostRequestDto;
+import com.example.bloggingapp.post.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface PostService {
 
@@ -23,4 +26,8 @@ public interface PostService {
     void deleteComment(int commentId);
 
     PostResponseDto favoritePost(String title);
+
+    PostResponseDto unfavorite(String title);
+
+    List<PostResponseDto> getPosts(String authorEmail, List<String> tags, boolean isFavorite);
 }

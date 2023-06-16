@@ -73,4 +73,16 @@ public class User {
     private void addFavoritePost(FavoritePost favoritePost) {
         this.getFavoritePosts().add(favoritePost);
     }
+
+    public void markUnFavorite(Post post) {
+        if(this.isFavoritePost(post)) {
+            FavoritePost favoritePost = new FavoritePost(this,post);
+            this.removeFavoritePost(favoritePost);
+            post.removeFavoriteUser(favoritePost);
+        }
+    }
+
+    private void removeFavoritePost(FavoritePost favoritePost) {
+        this.getFavoritePosts().remove(favoritePost);
+    }
 }

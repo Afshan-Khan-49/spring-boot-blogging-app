@@ -21,7 +21,7 @@ public class PostMapperImpl implements PostMapper {
                 .updatedAt(post.getUpdatedAt())
                 .createdAt(post.getCreatedAt())
                 .userResponseDto(UserMapper.MAPPER.userToUserResponse(post.getAuthor()))
-                .tags(postTagToTagNames(post.getIncludeTags()))
+                .tags(postTagToTagNames(post.getPostTags()))
                 .isFavorite(post.getAuthor().isFavoritePost(post))
                 .build();
     }

@@ -1,6 +1,7 @@
 package com.example.bloggingapp.post.controller;
 
 import com.example.bloggingapp.post.dto.*;
+import com.example.bloggingapp.post.entity.Post;
 import com.example.bloggingapp.post.mapper.PostMapper;
 import com.example.bloggingapp.post.repository.PostRepository;
 import com.example.bloggingapp.post.service.PostService;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/posts")
@@ -23,6 +25,7 @@ public class PostController {
     private final PostRepository postRepository;
 
     private final PostMapper postMapper;
+
     @PostMapping
     public ResponseEntity<PostResponseDto> createPost(@Valid @RequestBody CreatePostRequestDto createPostRequestDto) {
 
@@ -33,9 +36,10 @@ public class PostController {
     }
 
     @GetMapping
-    public Page<PostResponseDto> getPosts(@RequestParam(value = "author", required = false) String authorName ,Pageable pageable) {
-        log.info("Getting posts by user");
-        return postRepository.findByAuthor_Email(authorName,pageable).map(postMapper::postToPostResponseDto);
+    public List<PostResponseDto> getPosts(@RequestParam(value = "author", required = false) String authorEmail,
+                               @RequestParam(value = "tags", required = false) List<String> tags,
+                               @RequestParam(value = "isFavorite", required = false) boolean isFavorite) {
+        return postService.getPosts(authorEmail, tags, isFavorite);
 
     }
 
@@ -56,12 +60,12 @@ public class PostController {
 
     @PostMapping("/{title}/comments")
     public CommentResponse createComment(@PathVariable String title, @RequestBody @Valid CreateCommentRequest createCommentRequest) {
-        return postService.addComment(title,createCommentRequest.getContent());
+        return postService.addComment(title, createCommentRequest.getContent());
     }
 
     @GetMapping("/{title}/comments")
     public Page<CommentResponse> getComments(@PathVariable String title, Pageable pageable) {
-        return postService.getComments(title,pageable);
+        return postService.getComments(title, pageable);
     }
 
     @DeleteMapping("/{title}/comments/{commentId}")
@@ -72,6 +76,11 @@ public class PostController {
     @PostMapping("/{title}/favorite")
     public PostResponseDto favoritePost(@PathVariable String title) {
         return postService.favoritePost(title);
+    }
+
+    @DeleteMapping("/{title}/favorite")
+    public PostResponseDto unfavorite(@PathVariable String title) {
+        return postService.unfavorite(title);
     }
 
 }

@@ -6,7 +6,9 @@ import com.example.bloggingapp.post.dto.CommentResponse;
 import com.example.bloggingapp.post.dto.CreatePostRequestDto;
 import com.example.bloggingapp.post.dto.PostResponseDto;
 import com.example.bloggingapp.post.dto.UpdatePostRequestDto;
+import com.example.bloggingapp.post.entity.FavoritePost;
 import com.example.bloggingapp.post.entity.Post;
+import com.example.bloggingapp.post.entity.PostTag;
 import com.example.bloggingapp.post.exception.PostNotFoundException;
 import com.example.bloggingapp.post.mapper.PostMapper;
 import com.example.bloggingapp.post.repository.PostRepository;
@@ -17,12 +19,17 @@ import com.example.bloggingapp.user.entity.User;
 import com.example.bloggingapp.user.exception.UserNotFoundException;
 import com.example.bloggingapp.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,6 +45,9 @@ public class PostServiceImpl implements PostService {
 
     private final TagService tagService;
     private final CommentService commentService;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     public PostResponseDto createPost(CreatePostRequestDto createPostRequestDto) {
@@ -146,6 +156,63 @@ public class PostServiceImpl implements PostService {
 
         user.markFavorite(post);
         return postMapper.postToPostResponseDto(post);
+    }
+
+    @Override
+    @Transactional
+    public PostResponseDto unfavorite(String title) {
+        Post post = checkIfPostExists(title);
+        User user = userRepository.findByEmail(LoginUtils.getCurrentUserEmail()).orElseThrow(() ->
+                new UserNotFoundException("Could not find user with emailId : " + LoginUtils.getCurrentUserEmail()));
+        user.markUnFavorite(post);
+        return postMapper.postToPostResponseDto(post);
+    }
+
+    @Override
+    @Transactional
+    public List<PostResponseDto> getPosts(String authorEmail, List<String> tags, boolean isFavorite) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Post> postCriteriaQuery = criteriaBuilder.createQuery(Post.class);
+        Root<Post> root = postCriteriaQuery.from(Post.class);
+        addPredicates(authorEmail,tags,isFavorite,criteriaBuilder,postCriteriaQuery,root);
+        return entityManager.createQuery(postCriteriaQuery).getResultList().stream().map(postMapper::postToPostResponseDto).collect(Collectors.toList());
+
+        //return postRepository.findPosts(authorEmail,tags,isFavorite ? LoginUtils.getCurrentUserEmail() : null).stream().map(postMapper::postToPostResponseDto).collect(Collectors.toList());
+
+    }
+
+    private void addPredicates(String authorEmail, List<String> tags, boolean isFavorite, CriteriaBuilder criteriaBuilder, CriteriaQuery<Post> postCriteriaQuery, Root<Post> root) {
+        List<Predicate> predicates = getPredicates(authorEmail,tags,isFavorite,criteriaBuilder, postCriteriaQuery,root);
+        Predicate[] predicatesArr = new Predicate[predicates.size()];
+        postCriteriaQuery.where(criteriaBuilder.and(predicates.toArray(predicatesArr)));
+    }
+
+    private List<Predicate> getPredicates(String authorEmail, List<String> tags, boolean isFavorite, CriteriaBuilder criteriaBuilder, CriteriaQuery<Post> postCriteriaQuery, Root<Post> root) {
+        List<Predicate> predicates = new ArrayList<>();
+        if(StringUtils.isNotEmpty(authorEmail)){
+            Join<Post, User> author = root.join("author");
+            Predicate authorPredicate = criteriaBuilder.equal(author.get("email"), authorEmail);
+            predicates.add(authorPredicate);
+        }
+        if(!CollectionUtils.isEmpty(tags)) {
+            Subquery<Integer> subquery = postCriteriaQuery.subquery(Integer.class);
+            Root<PostTag> subRoot = subquery.from(PostTag.class);
+            Join<PostTag, Tag> tag = subRoot.join("tag");
+            subquery.select(subRoot.get("post"));
+            subquery.where(tag.get("name").in(tags));
+            Predicate tagsPredicate = root.get("id").in(subquery);
+            predicates.add(tagsPredicate);
+        }
+        if(isFavorite) {
+            Subquery<Integer> subquery = postCriteriaQuery.subquery(Integer.class);
+            Root<FavoritePost> subRoot = subquery.from(FavoritePost.class);
+            Join<PostTag, Tag> user = subRoot.join("user");
+            subquery.select(subRoot.get("post"));
+            subquery.where(user.get("email").in(LoginUtils.getCurrentUserEmail()));
+            Predicate favoritePredicate = root.get("id").in(subquery);
+            predicates.add(favoritePredicate);
+        }
+        return predicates;
     }
 
     private Post checkIfPostExists(String title) {
