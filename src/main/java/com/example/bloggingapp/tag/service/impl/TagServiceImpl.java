@@ -4,6 +4,8 @@ import com.example.bloggingapp.tag.entity.Tag;
 import com.example.bloggingapp.tag.repository.TagRepository;
 import com.example.bloggingapp.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import java.util.Set;
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
+
     @Override
     public Set<Tag> findByTagNames(List<String> tagNames) {
         return tagRepository.findByNameIn(tagNames);
@@ -30,5 +33,10 @@ public class TagServiceImpl implements TagService {
     @Override
     public Tag save(Tag tag) {
         return tagRepository.save(tag);
+    }
+
+    @Override
+    public Page<Tag> getTags(Pageable pageRequest) {
+        return tagRepository.findAll(pageRequest);
     }
 }
