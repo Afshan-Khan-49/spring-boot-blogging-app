@@ -1,10 +1,6 @@
 package com.example.bloggingapp.post.service;
 
-import com.example.bloggingapp.post.dto.CommentResponse;
-import com.example.bloggingapp.post.dto.CreatePostRequestDto;
-import com.example.bloggingapp.post.dto.PostResponseDto;
-import com.example.bloggingapp.post.dto.UpdatePostRequestDto;
-import com.example.bloggingapp.post.entity.Post;
+import com.example.bloggingapp.post.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,6 +9,7 @@ import java.util.List;
 public interface PostService {
 
     PostResponseDto createPost(CreatePostRequestDto createPostRequestDto);
+
     PostResponseDto getPostByTitle(String title);
 
     PostResponseDto updatePost(String title, UpdatePostRequestDto updatePostRequestDto);
@@ -29,5 +26,5 @@ public interface PostService {
 
     PostResponseDto unfavorite(String title);
 
-    List<PostResponseDto> getPosts(String authorEmail, List<String> tags, boolean isFavorite);
+    ListPostResponse getPosts(String authorEmail, List<String> tags, boolean isFavorite, Pageable pageable);
 }

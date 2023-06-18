@@ -2,10 +2,7 @@ package com.example.bloggingapp.post.service.impl;
 
 import com.example.bloggingapp.comment.service.CommentService;
 import com.example.bloggingapp.common.util.LoginUtils;
-import com.example.bloggingapp.post.dto.CommentResponse;
-import com.example.bloggingapp.post.dto.CreatePostRequestDto;
-import com.example.bloggingapp.post.dto.PostResponseDto;
-import com.example.bloggingapp.post.dto.UpdatePostRequestDto;
+import com.example.bloggingapp.post.dto.*;
 import com.example.bloggingapp.post.entity.FavoritePost;
 import com.example.bloggingapp.post.entity.Post;
 import com.example.bloggingapp.post.entity.PostTag;
@@ -22,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,7 +137,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<CommentResponse> getComments(String title, Pageable pageable) {
         Post post = checkIfPostExists(title);
-        return commentService.getComments(post,pageable);
+        return commentService.getComments(post, pageable);
     }
 
     @Override
@@ -170,31 +168,50 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public List<PostResponseDto> getPosts(String authorEmail, List<String> tags, boolean isFavorite) {
+    public ListPostResponse getPosts(String authorEmail, List<String> tags, boolean isFavorite, Pageable pageable) {
+        List<PostResponseDto> posts = getPostEntities(authorEmail, tags, isFavorite, pageable).stream().map(postMapper::postToPostResponseDto).collect(Collectors.toList());
+        Long count = getPostCount(authorEmail, tags, isFavorite, pageable);
+        return new ListPostResponse(posts, pageable, count);
+    }
+
+    private Long getPostCount(String authorEmail, List<String> tags, boolean isFavorite, Pageable pageable) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> postCriteriaQuery = criteriaBuilder.createQuery(Long.class);
+        Root<Post> root = postCriteriaQuery.from(Post.class);
+        addPredicates(authorEmail, tags, isFavorite, criteriaBuilder, postCriteriaQuery, root);
+        postCriteriaQuery.select(criteriaBuilder.count(root));
+        return entityManager.createQuery(postCriteriaQuery).getSingleResult();
+    }
+
+    private List<Post> getPostEntities(String authorEmail, List<String> tags, boolean isFavorite, Pageable pageable) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Post> postCriteriaQuery = criteriaBuilder.createQuery(Post.class);
         Root<Post> root = postCriteriaQuery.from(Post.class);
-        addPredicates(authorEmail,tags,isFavorite,criteriaBuilder,postCriteriaQuery,root);
-        return entityManager.createQuery(postCriteriaQuery).getResultList().stream().map(postMapper::postToPostResponseDto).collect(Collectors.toList());
-
-        //return postRepository.findPosts(authorEmail,tags,isFavorite ? LoginUtils.getCurrentUserEmail() : null).stream().map(postMapper::postToPostResponseDto).collect(Collectors.toList());
-
+        addPredicates(authorEmail, tags, isFavorite, criteriaBuilder, postCriteriaQuery, root);
+        return getPagedPostEntities(pageable, postCriteriaQuery);
     }
 
-    private void addPredicates(String authorEmail, List<String> tags, boolean isFavorite, CriteriaBuilder criteriaBuilder, CriteriaQuery<Post> postCriteriaQuery, Root<Post> root) {
-        List<Predicate> predicates = getPredicates(authorEmail,tags,isFavorite,criteriaBuilder, postCriteriaQuery,root);
+    private List<Post> getPagedPostEntities(Pageable pageable, CriteriaQuery<Post> postCriteriaQuery) {
+        return entityManager.createQuery(postCriteriaQuery)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
+    }
+
+    private void addPredicates(String authorEmail, List<String> tags, boolean isFavorite, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> postCriteriaQuery, Root<Post> root) {
+        List<Predicate> predicates = getPredicates(authorEmail, tags, isFavorite, criteriaBuilder, postCriteriaQuery, root);
         Predicate[] predicatesArr = new Predicate[predicates.size()];
         postCriteriaQuery.where(criteriaBuilder.and(predicates.toArray(predicatesArr)));
     }
 
-    private List<Predicate> getPredicates(String authorEmail, List<String> tags, boolean isFavorite, CriteriaBuilder criteriaBuilder, CriteriaQuery<Post> postCriteriaQuery, Root<Post> root) {
+    private List<Predicate> getPredicates(String authorEmail, List<String> tags, boolean isFavorite, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> postCriteriaQuery, Root<Post> root) {
         List<Predicate> predicates = new ArrayList<>();
-        if(StringUtils.isNotEmpty(authorEmail)){
+        if (StringUtils.isNotEmpty(authorEmail)) {
             Join<Post, User> author = root.join("author");
             Predicate authorPredicate = criteriaBuilder.equal(author.get("email"), authorEmail);
             predicates.add(authorPredicate);
         }
-        if(!CollectionUtils.isEmpty(tags)) {
+        if (!CollectionUtils.isEmpty(tags)) {
             Subquery<Integer> subquery = postCriteriaQuery.subquery(Integer.class);
             Root<PostTag> subRoot = subquery.from(PostTag.class);
             Join<PostTag, Tag> tag = subRoot.join("tag");
@@ -203,7 +220,7 @@ public class PostServiceImpl implements PostService {
             Predicate tagsPredicate = root.get("id").in(subquery);
             predicates.add(tagsPredicate);
         }
-        if(isFavorite) {
+        if (isFavorite) {
             Subquery<Integer> subquery = postCriteriaQuery.subquery(Integer.class);
             Root<FavoritePost> subRoot = subquery.from(FavoritePost.class);
             Join<PostTag, Tag> user = subRoot.join("user");

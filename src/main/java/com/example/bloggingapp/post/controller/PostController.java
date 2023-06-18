@@ -36,10 +36,11 @@ public class PostController {
     }
 
     @GetMapping
-    public List<PostResponseDto> getPosts(@RequestParam(value = "author", required = false) String authorEmail,
-                               @RequestParam(value = "tags", required = false) List<String> tags,
-                               @RequestParam(value = "isFavorite", required = false) boolean isFavorite) {
-        return postService.getPosts(authorEmail, tags, isFavorite);
+    public ListPostResponse getPosts(@RequestParam(value = "author", required = false) String authorEmail,
+                                     @RequestParam(value = "tags", required = false) List<String> tags,
+                                     @RequestParam(value = "isFavorite", required = false) boolean isFavorite,
+                                     Pageable pageable) {
+        return postService.getPosts(authorEmail, tags, isFavorite, pageable);
 
     }
 
