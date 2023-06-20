@@ -40,7 +40,7 @@ public class Follow {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Follow follow = (Follow) o;
-        return id.equals(follow.id) && from.equals(follow.from) && to.equals(follow.to);
+        return id.equals(follow.id);
     }
 
     @Override

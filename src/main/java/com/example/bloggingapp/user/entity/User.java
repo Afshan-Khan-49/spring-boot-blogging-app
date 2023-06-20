@@ -1,9 +1,11 @@
 package com.example.bloggingapp.user.entity;
 
-import com.example.bloggingapp.post.dto.PostResponseDto;
 import com.example.bloggingapp.post.entity.FavoritePost;
 import com.example.bloggingapp.post.entity.Post;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -84,5 +86,43 @@ public class User {
 
     private void removeFavoritePost(FavoritePost favoritePost) {
         this.getFavoritePosts().remove(favoritePost);
+    }
+
+    public boolean isAlreadyFollowing(User targetUser) {
+        Follow follow = new Follow(this, targetUser);
+        return this.getFollowing().stream().anyMatch(follow::equals);
+    }
+
+    public void follow(User targetUser) {
+        if(this.isAlreadyFollowing(targetUser))
+            return;
+        Follow follow = new Follow(this, targetUser);
+        this.addFollowing(follow);
+        this.addFollower(follow);
+    }
+
+    private void addFollower(Follow follow) {
+        follow.getTo().getFollower().add(follow);
+    }
+
+    private void addFollowing(Follow follow) {
+        this.following.add(follow);
+    }
+
+
+    public void unfollow(User targetUser) {
+        if(!this.isAlreadyFollowing(targetUser))
+            return;
+        Follow follow = new Follow(this,targetUser);
+        this.removeFollowing(follow);
+        this.removeFollower(follow);
+    }
+
+    private void removeFollower(Follow follow) {
+        follow.getTo().getFollower().remove(follow);
+    }
+
+    private void removeFollowing(Follow follow) {
+        this.following.remove(follow);
     }
 }
