@@ -12,7 +12,6 @@ import java.util.Objects;
 @Getter
 @Builder
 @Table(name = "user_follow")
-//@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Follow {

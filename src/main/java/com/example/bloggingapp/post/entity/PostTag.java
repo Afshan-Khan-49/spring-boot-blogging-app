@@ -13,7 +13,6 @@ import java.util.Objects;
 @Getter
 @Builder
 @Table(name = "post_tag")
-//@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostTag {

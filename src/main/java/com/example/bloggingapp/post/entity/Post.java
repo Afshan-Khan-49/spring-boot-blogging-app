@@ -21,7 +21,6 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-//@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 public class Post {
     @Id

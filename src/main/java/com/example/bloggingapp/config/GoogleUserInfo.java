@@ -8,7 +8,6 @@ public class GoogleUserInfo {
     private Map<String, Object> attributes;
 
     public GoogleUserInfo(Map<String, Object> attributes) {
-        System.out.println("attributes : " + attributes);
         this.attributes = attributes;
     }
 

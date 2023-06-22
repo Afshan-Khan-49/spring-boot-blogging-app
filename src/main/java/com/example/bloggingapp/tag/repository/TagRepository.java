@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface TagRepository extends JpaRepository<Tag,Integer> {
+public interface TagRepository extends JpaRepository<Tag, Integer> {
     Optional<Tag> findByName(String postTag);
 
     Set<Tag> findByNameIn(List<String> tagNames);

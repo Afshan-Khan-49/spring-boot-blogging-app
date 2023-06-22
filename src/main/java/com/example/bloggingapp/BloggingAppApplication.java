@@ -13,8 +13,8 @@ import java.security.Principal;
 public class BloggingAppApplication {
 
 
-	public static void main(String[] args) {
-		SpringApplication.run(BloggingAppApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BloggingAppApplication.class, args);
+    }
 
 }

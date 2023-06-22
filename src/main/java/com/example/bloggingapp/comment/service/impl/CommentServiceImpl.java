@@ -41,14 +41,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Page<CommentResponse> getComments(Post post, Pageable pageable) {
-        log.info("Fetching comments for post: {}",post.getTitle());
-        return commentRepository.findByPostOrderByCreatedAtDesc(post,pageable).map(commentMapper::commentToCommentResponse);
+        log.info("Fetching comments for post: {}", post.getTitle());
+        return commentRepository.findByPostOrderByCreatedAtDesc(post, pageable).map(commentMapper::commentToCommentResponse);
     }
 
     @Override
     public void deleteComment(int commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentNotFoundException("Could not find comment with id: " + commentId));
-        if(!comment.isWrittenByCurrentUser(LoginUtils.getCurrentUserEmail())){
+        if (!comment.isWrittenByCurrentUser(LoginUtils.getCurrentUserEmail())) {
             throw new IllegalArgumentException("Only comments written by you can be deleted");
         }
         commentRepository.delete(comment);

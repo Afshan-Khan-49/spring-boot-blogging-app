@@ -14,7 +14,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
-//@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Comment {

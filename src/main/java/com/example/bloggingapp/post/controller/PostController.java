@@ -1,9 +1,6 @@
 package com.example.bloggingapp.post.controller;
 
 import com.example.bloggingapp.post.dto.*;
-import com.example.bloggingapp.post.entity.Post;
-import com.example.bloggingapp.post.mapper.PostMapper;
-import com.example.bloggingapp.post.repository.PostRepository;
 import com.example.bloggingapp.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +19,6 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final PostRepository postRepository;
-
-    private final PostMapper postMapper;
 
     @PostMapping
     public ResponseEntity<PostResponseDto> createPost(@Valid @RequestBody CreatePostRequestDto createPostRequestDto) {

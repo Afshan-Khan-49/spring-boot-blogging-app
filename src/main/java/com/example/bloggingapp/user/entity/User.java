@@ -19,7 +19,6 @@ import java.util.Set;
 @Getter
 @Builder
 @Table(name = "users")
-//@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
@@ -51,21 +50,21 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "from", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Follow> following = new HashSet<>();
 
-    
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "to", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Follow> follower = new HashSet<>();
 
-    
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<FavoritePost> favoritePosts = new HashSet<>();
 
     public boolean isFavoritePost(@NotNull Post post) {
-        FavoritePost favoritePost = new FavoritePost(this,post);
+        FavoritePost favoritePost = new FavoritePost(this, post);
         return this.getFavoritePosts().stream().anyMatch(favoritePost::equals);
     }
 
     public void markFavorite(Post post) {
-        if(!this.isFavoritePost(post)) {
+        if (!this.isFavoritePost(post)) {
             FavoritePost favoritePost = new FavoritePost(this, post);
             this.addFavoritePost(favoritePost);
             post.addFavoriteUser(favoritePost);
@@ -77,8 +76,8 @@ public class User {
     }
 
     public void markUnFavorite(Post post) {
-        if(this.isFavoritePost(post)) {
-            FavoritePost favoritePost = new FavoritePost(this,post);
+        if (this.isFavoritePost(post)) {
+            FavoritePost favoritePost = new FavoritePost(this, post);
             this.removeFavoritePost(favoritePost);
             post.removeFavoriteUser(favoritePost);
         }
@@ -94,7 +93,7 @@ public class User {
     }
 
     public void follow(User targetUser) {
-        if(this.isAlreadyFollowing(targetUser))
+        if (this.isAlreadyFollowing(targetUser))
             return;
         Follow follow = new Follow(this, targetUser);
         this.addFollowing(follow);
@@ -111,9 +110,9 @@ public class User {
 
 
     public void unfollow(User targetUser) {
-        if(!this.isAlreadyFollowing(targetUser))
+        if (!this.isAlreadyFollowing(targetUser))
             return;
-        Follow follow = new Follow(this,targetUser);
+        Follow follow = new Follow(this, targetUser);
         this.removeFollowing(follow);
         this.removeFollower(follow);
     }

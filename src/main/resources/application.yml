@@ -1,0 +1,27 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id : <client-id>
+            client-secret : <client-secret>
+
+  datasource:
+    url: <jdbc-connection-url>
+    username: <username>
+    password: <password>
+    driver-class-name: <driver-class-name>
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
+server:
+  port : <port>
+

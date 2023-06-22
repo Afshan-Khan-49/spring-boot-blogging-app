@@ -21,18 +21,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final FollowerMapper followerMapper;
+
     @Override
     public FollowerResponseDto followUser(String email) {
-        User targetUser = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Could not find user with email:" + email));
-        User sourceUser = userRepository.findByEmail(LoginUtils.getCurrentUserEmail()).orElseThrow(() -> new UserNotFoundException("Could not find user with email:" + LoginUtils.getCurrentUserEmail()));
+        User targetUser = checkIfUserExists(email);
+        User sourceUser = checkIfUserExists(LoginUtils.getCurrentUserEmail());
         sourceUser.follow(targetUser);
         return followerMapper.userToFollowerResponseDto(targetUser, sourceUser);
     }
 
     @Override
     public FollowerResponseDto unFollow(String email) {
-        User targetUser = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Could not find user with email:" + email));
-        User sourceUser = userRepository.findByEmail(LoginUtils.getCurrentUserEmail()).orElseThrow(() -> new UserNotFoundException("Could not find user with email:" + LoginUtils.getCurrentUserEmail()));
+        User targetUser = checkIfUserExists(email);
+        User sourceUser = checkIfUserExists(LoginUtils.getCurrentUserEmail());
         sourceUser.unfollow(targetUser);
         return followerMapper.userToFollowerResponseDto(targetUser, sourceUser);
     }
@@ -40,14 +41,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponseDto> getFollowers(Pageable pageRequest) {
         String currentUserEmail = LoginUtils.getCurrentUserEmail();
-        User user = userRepository.findByEmail(currentUserEmail).orElseThrow(() -> new UserNotFoundException("Could not find user with email:" + LoginUtils.getCurrentUserEmail()));
+        checkIfUserExists(currentUserEmail);
         return userRepository.getFollowers(currentUserEmail, pageRequest).map(UserMapper.MAPPER::userToUserResponse);
     }
 
     @Override
     public Page<UserResponseDto> getFollowing(Pageable pageRequest) {
         String currentUserEmail = LoginUtils.getCurrentUserEmail();
-        User user = userRepository.findByEmail(currentUserEmail).orElseThrow(() -> new UserNotFoundException("Could not find user with email:" + LoginUtils.getCurrentUserEmail()));
+        checkIfUserExists(currentUserEmail);
         return userRepository.getFollowing(currentUserEmail, pageRequest).map(UserMapper.MAPPER::userToUserResponse);
+    }
+
+    private User checkIfUserExists(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Could not find user with email:" + LoginUtils.getCurrentUserEmail()));
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CommentMapperImpl implements CommentMapper {
     private final PostMapper postMapper;
+
     @Override
     public CommentResponse commentToCommentResponse(Comment comment) {
         return CommentResponse.builder()

@@ -8,7 +8,4 @@ public class CommentNotFoundException extends DomainException {
         super(s);
     }
 
-    public CommentNotFoundException(String s, Throwable throwable) {
-        super(s, throwable);
-    }
 }

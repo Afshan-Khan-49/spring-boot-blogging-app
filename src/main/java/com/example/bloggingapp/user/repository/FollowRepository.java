@@ -4,5 +4,5 @@ import com.example.bloggingapp.user.entity.Follow;
 import com.example.bloggingapp.user.entity.FollowId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface FollowRepository extends JpaRepository<Follow,FollowId> {
+public interface FollowRepository extends JpaRepository<Follow, FollowId> {
 }
