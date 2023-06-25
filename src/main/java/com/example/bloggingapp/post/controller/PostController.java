@@ -74,7 +74,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{title}/favorite")
-    public PostResponseDto unfavorite(@PathVariable String title) {
+    public PostResponseDto unfavoritePost(@PathVariable String title) {
         return postService.unfavorite(title);
     }
 

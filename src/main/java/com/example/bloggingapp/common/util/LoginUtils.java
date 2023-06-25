@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @UtilityClass
 public class LoginUtils {
 
+    //Get current user details from security context
     public static OAuth2User getCurrentUser() {
         return (OAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }

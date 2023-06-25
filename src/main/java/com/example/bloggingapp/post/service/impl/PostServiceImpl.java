@@ -87,7 +87,8 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponseDto updatePost(String title, UpdatePostRequestDto updatePostRequestDto) {
         Post post = checkIfPostExists(title);
-
+        // Check if user is trying to edit other user's post
+        // edit button should be disabled on UI for this scenario but better to check here as well
         if (!post.writtenByCurrentUser(LoginUtils.getCurrentUserEmail()))
             throw new IllegalArgumentException("You cannot edit other user's post");
 
@@ -114,7 +115,8 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void deletePost(String title) {
         Post post = checkIfPostExists(title);
-
+        // Check if user is trying to delete other user's post
+        // delete button should be disabled on UI for this scenario but better to check here as well
         if (!post.writtenByCurrentUser(LoginUtils.getCurrentUserEmail()))
             throw new IllegalArgumentException("You cannot delete other user's post");
 
@@ -191,6 +193,7 @@ public class PostServiceImpl implements PostService {
     }
 
     private List<Post> getPagedPostEntities(Pageable pageable, CriteriaQuery<Post> postCriteriaQuery) {
+        // return posts as per the page limit
         return entityManager.createQuery(postCriteriaQuery)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())

@@ -19,6 +19,7 @@ public class CustomOidcUserService extends OidcUserService {
     @Autowired
     private UserRepository userRepository;
 
+    //On user login this method will be executed to load user details into db
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
         OidcUser oidcUser = super.loadUser(userRequest);
