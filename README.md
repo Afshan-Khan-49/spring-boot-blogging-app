@@ -9,4 +9,4 @@ Following key features are implemented in the application
 4. User can also follow or unfollow other users
 
 **Database Diagram**
-<img width="3126" alt="image" src="https://github.com/Afshan-Khan-49/spring-boot-blogginf-app/blob/2382ca02af8d5165ef723e34f49b3d0a434e6bfc/src/main/resources/images/ER_Diagram.png">
+<img width="3126" alt="image" src="https://github.com/Afshan-Khan-49/spring-boot-blogginf-app/blob/670adce1a408a79b0b6e0da01b6835db8fe91efb/src/main/resources/images/ER_Diagram.png">
