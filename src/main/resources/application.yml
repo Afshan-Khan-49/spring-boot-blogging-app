@@ -1,4 +1,9 @@
 spring:
+  cache:
+    type: redis
+  redis:
+    host: <host>
+    port: <port>
   security:
     oauth2:
       client:
