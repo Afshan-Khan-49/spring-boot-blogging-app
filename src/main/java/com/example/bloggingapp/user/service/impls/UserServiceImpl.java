@@ -52,7 +52,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.getFollowing(currentUserEmail, pageRequest).map(UserMapper.MAPPER::userToUserResponse);
     }
 
-    private User checkIfUserExists(String email) {
+    @Override
+    public User checkIfUserExists(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Could not find user with email:" + LoginUtils.getCurrentUserEmail()));
     }
 }

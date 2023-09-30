@@ -2,6 +2,7 @@ package com.example.bloggingapp.user.service;
 
 import com.example.bloggingapp.user.dto.FollowerResponseDto;
 import com.example.bloggingapp.user.dto.UserResponseDto;
+import com.example.bloggingapp.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,4 +14,6 @@ public interface UserService {
     Page<UserResponseDto> getFollowers(Pageable pageRequest);
 
     Page<UserResponseDto> getFollowing(Pageable pageRequest);
+
+    User checkIfUserExists(String email);
 }

@@ -30,3 +30,6 @@ spring:
 server:
   port : <port>
 
+aws:
+  profile:
+    name: <profile_name>

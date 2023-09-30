@@ -2,6 +2,7 @@ package com.example.bloggingapp.post.service.impl;
 
 import com.example.bloggingapp.comment.service.CommentService;
 import com.example.bloggingapp.common.util.LoginUtils;
+import com.example.bloggingapp.notification.service.NotificationService;
 import com.example.bloggingapp.post.dto.*;
 import com.example.bloggingapp.post.entity.FavoritePost;
 import com.example.bloggingapp.post.entity.Post;
@@ -42,6 +43,7 @@ public class PostServiceImpl implements PostService {
 
     private final TagService tagService;
     private final CommentService commentService;
+    private final NotificationService notificationService;
 
     @Autowired
     private EntityManager entityManager;
@@ -73,6 +75,8 @@ public class PostServiceImpl implements PostService {
         }
 
         Post savedPost = postRepository.save(post);
+        notificationService.notifyUsers("New Post Notification", "New Post Notification",
+                LoginUtils.getCurrentUserEmail(), user.get().getId());
         return postMapper.postToPostResponseDto(savedPost);
 
     }
