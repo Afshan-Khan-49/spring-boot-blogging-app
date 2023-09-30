@@ -90,7 +90,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ResponseBody
-    @ExceptionHandler(value = {PostNotFoundException.class})
+    @ExceptionHandler(value = {CommentNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleException(CommentNotFoundException commentNotFoundException) {
         log.error(commentNotFoundException.getMessage(), commentNotFoundException);
@@ -101,7 +101,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ResponseBody
-    @ExceptionHandler(value = {PostNotFoundException.class})
+    @ExceptionHandler(value = {UserNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleException(UserNotFoundException userNotFoundException) {
         log.error(userNotFoundException.getMessage(), userNotFoundException);
