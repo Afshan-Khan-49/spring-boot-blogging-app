@@ -13,13 +13,9 @@ import org.springframework.mail.MailSender;
 @Configuration
 public class SESConfig {
 
-    @Value("${aws.profile.name}")
-    private String profileName;
-
     @Bean
     public AmazonSimpleEmailService amazonSimpleEmailService() {
         return AmazonSimpleEmailServiceClientBuilder.standard()
-                .withCredentials(new ProfileCredentialsProvider(profileName))
                 .withRegion(Regions.US_EAST_1)
                 .build();
     }

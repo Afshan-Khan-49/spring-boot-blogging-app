@@ -1,0 +1,8 @@
+aws:
+  paramstore:
+    name: blogging-app
+    prefix: /config
+    enabled: true
+    failFast: true
+    defaultContext: application
+    profileSeparator: _

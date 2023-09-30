@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: blogging-app
   cache:
     type: redis
   redis:
@@ -11,12 +13,14 @@ spring:
           google:
             client-id : <client-id>
             client-secret : <client-secret>
+  config:
+    import: "aws-parameterstore:"
 
   datasource:
     url: <jdbc-connection-url>
     username: <username>
     password: <password>
-    driver-class-name: <driver-class-name>
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
@@ -29,7 +33,3 @@ spring:
 
 server:
   port : <port>
-
-aws:
-  profile:
-    name: <profile_name>
