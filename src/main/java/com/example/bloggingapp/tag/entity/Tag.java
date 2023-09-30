@@ -19,7 +19,7 @@ public class Tag {
     @Column(name = "tag_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
-    private Integer id;
+    private Long id;
 
     @Column(length = 20, unique = true, nullable = false)
     private String name;

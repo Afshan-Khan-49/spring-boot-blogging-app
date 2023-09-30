@@ -15,5 +15,5 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class FavoritePostId implements Serializable {
     private Long userId;
-    private Integer postId;
+    private Long postId;
 }

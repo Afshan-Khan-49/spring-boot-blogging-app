@@ -15,6 +15,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class PostTagId implements Serializable {
 
-    private Integer postId;
-    private Integer tagId;
+    private Long postId;
+    private Long tagId;
 }
