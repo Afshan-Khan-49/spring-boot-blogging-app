@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  DBInstanceIdentifier:
+    Description: RDS DB Instance Identifier
+    Type: String
+    Default: 'rds-dev'
+
+  SSMParameterNameForUsername:
+    Description: The name of the SSM parameter storing the RDS master username.
+    Type: String
+
+  SSMParameterNameForPassword:
+    Description: The name of the SSM parameter storing the RDS master password.
+    Type: String
+
+  DBInstanceClass:
+    Description: RDS DB Instance Class
+    Type: String
+    Default: 'db.t3.micro'
+
+  StorageType:
+    Description: RDS Storage Type
+    Type: String
+    Default: 'gp2'
+
+  AllocatedStorage:
+    Description: Allocated storage size
+    Type: Number
+    Default: 20
+
+  VPCId:
+    Description: The VPC ID where the RDS instance should reside.
+    Type: AWS::EC2::VPC::Id
+
+  SubnetIds:
+    Description: Subnet IDs from the VPC where the RDS instance should be created.
+    Type: List<AWS::EC2::Subnet::Id>
+
+  RedisClusterName:
+    Description: ElasticCache Cluster Name
+    Type: String
+    Default: 'redis-dev'
+
+  RedisCacheNodeType:
+    Description: ElasticCache Node Type
+    Type: String
+    Default: 'cache.t2.micro'
+
+  AppSecurityGroupId:
+    Description: The Security Group ID of the app server.
+    Type: AWS::EC2::SecurityGroup::Id
+
+Resources:
+  RDSSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Security Group for RDS instance'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '3306'
+          ToPort: '3306'
+          SourceSecurityGroupId: !Ref AppSecurityGroupId
+
+  ElasticCacheSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Security Group for ElasticCache instance'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '6379'
+          ToPort: '6379'
+          SourceSecurityGroupId: !Ref AppSecurityGroupId
+
+  DBSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupName: 'RDSSubnetGroup'
+      DBSubnetGroupDescription: 'RDS Subnet Group'
+      SubnetIds: !Ref SubnetIds
+
+  RDSInstance:
+    Type: 'AWS::RDS::DBInstance'
+    DependsOn:
+      - RDSSecurityGroup
+      - DBSubnetGroup
+    Properties:
+      Engine: 'MYSQL'
+      EngineVersion: '8.0.33'
+      DBInstanceIdentifier: !Ref DBInstanceIdentifier
+      MasterUsername: !Sub '{{resolve:ssm:${SSMParameterNameForUsername}}}'
+      MasterUserPassword: !Sub '{{resolve:ssm:${SSMParameterNameForPassword}}}'
+      DBInstanceClass: !Ref DBInstanceClass
+      StorageType: !Ref StorageType
+      AllocatedStorage: !Ref AllocatedStorage
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !GetAtt RDSSecurityGroup.GroupId
+      BackupRetentionPeriod: 0
+      StorageEncrypted: false
+      MultiAZ: false
+
+  Redis:
+    Type: AWS::ElasticCache::CacheCluster
+    DependsOn: ElasticCacheSecurityGroup
+    Properties:
+      ClusterName: !Ref RedisClusterName
+      CacheNodeType: !Ref RedisCacheNodeType
+      NumCacheNodes: 1
+      Engine: 'redis'
+      EngineVersion: '7.0'
+      CacheParameterGroupName: 'default.redis7'
+      AZMode: 'single-az'
+      SnapshotRetentionLimit: 0
+      VpcSecurityGroupIds:
+        - !GetAtt ElasticCacheSecurityGroup.GroupId
